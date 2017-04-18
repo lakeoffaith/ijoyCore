@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+<import resource="classpath:META-INF/cxf/cxf.xml"/>
+<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+ 
+     <bean id="loginInterceptor" class="com.ijoy.interceptor.LoginInterceptor">
+		    
+		</bean>
+    <jaxws:server id="LoginInfo" serviceClass="com.ijoy.service.ILoginInfoService" address="/LoginInfo">
+    	<jaxws:serviceBean>
+        <!-- 要暴露的 bean 的引用 -->
+        <bean class="com.ijoy.service.impl.LoginInfoServiceImpl"></bean>
+    </jaxws:serviceBean>
+    </jaxws:server> 
+    <jaxws:server id="User" serviceClass="com.ijoy.service.IUserService" address="/User">
+    	<jaxws:serviceBean>
+        <!-- 要暴露的 bean 的引用 -->
+        <bean class="com.ijoy.service.impl.UserServiceImpl"></bean>
+    	</jaxws:serviceBean>
+    	
+    	<jaxws:inInterceptors>
+    		<ref bean="loginInterceptor"/>
+    	</jaxws:inInterceptors>
+    </jaxws:server>
+   
+	 
+	
+</beans>  
+ 

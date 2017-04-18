@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	<context:component-scan base-package="com"/>
+	 <bean id="dataSource"  
+          class="com.mchange.v2.c3p0.ComboPooledDataSource"  
+          destroy-method="close">  
+        <property name="driverClass">  
+            	<value>com.mysql.jdbc.Driver</value>
+        </property>  
+        <property name="jdbcUrl">  
+            <!-- <value>${datasource.url}</value>   -->
+            <value>jdbc:mysql://localhost:3306/demo?useUnicode=true&amp;characterEncoding=utf-8</value>
+        </property>  
+        <property name="user">  
+            <!-- <value>${datasource.username}</value>   -->
+            <value>root</value>
+        </property>  
+        <property name="password">  
+            <value>black</value>  
+            <!-- <value>black</value> -->
+        </property>  
+        <!-- 当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3  -->  
+        <property name="acquireIncrement">  
+            <value>3</value>  
+        </property>  
+<!--         初始化时获取三个连接，取值应在minPoolSize与maxPoolSize之间。Default: 3   
+ -->        <property name="initialPoolSize">  
+            <value>3</value>  
+        </property>  
+        <property name="minPoolSize">  
+            <value>5</value>  
+        </property>  
+        <property name="maxPoolSize">  
+            <value>100</value>  
+        </property>  
+<!--         最大空闲时间,60秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0   
+ -->        <property name="maxIdleTime">  
+            <value>60</value>  
+        </property>  
+        <!-- 每60秒检查所有连接池中的空闲连接。Default: 0  -->  
+        <property name="idleConnectionTestPeriod">  
+            <value>60</value>  
+        </property>  
+        <!-- JDBC的标准参数，用以控制数据源内加载的PreparedStatements数量。但由于预缓存的statements   
+                            属于单个connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素。   
+                            如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0    -->
+        <property name="maxStatements">  
+            <value>100</value>  
+        </property>  
+        <!-- c3p0是异步操作的，缓慢的JDBC操作通过帮助进程完成。扩展这些操作可以有效的提升性能 通过  
+                                  多线程实现多个操作同时被执行。Default: 3    -->
+        <property name="numHelperThreads">  
+            <value>10</value>  
+        </property>  
+    </bean>  
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="configLocation" value="classpath:mybatis-config.xml"/>
+	</bean>
+	<bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+	    <property name="basePackage" value="com.ijoy.mapper"/>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.ijoy.mapper"/>
+		<!-- <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/> -->
+	</bean>
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<tx:annotation-driven transaction-manager="txManager"/>
+	
+	<aop:aspectj-autoproxy/>
+    <import resource="classpath:cxf-servlet.xml"/>  
+  
+
+</beans>
