@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class LoginInfoServiceImpl extends BaseServiceImpl
@@ -30,13 +31,25 @@ public class LoginInfoServiceImpl extends BaseServiceImpl
     Random r = new Random();
     String code = String.valueOf(r.nextInt(9999));
     String loginName = Phone;
-
-    LoginInfo loginInfo = new LoginInfo();
-    loginInfo.setCode(code);
-    loginInfo.setLoginType(LoginType.PhoneLogin.getNumberCode());
-    loginInfo.setLoginName(Phone);
-    this.loginInfoMapper.insert(loginInfo);
-
+    
+    LoginInfo loginInfo =null;
+    Example example=new Example(LoginInfo.class);
+    example.createCriteria().andEqualTo("loginName", Phone);
+    loginInfo=loginInfoMapper.selectByExample(example).get(0);
+    
+    if(loginInfo!=null){
+    	 //如果此号码存在，则更新 code,
+    	loginInfo.setLoginType(LoginType.PhoneLogin.getNumberCode());
+        loginInfo.setCode(code);
+      
+        this.loginInfoMapper.updateByExample(loginInfo, example);
+    	
+    }else{
+    	loginInfo= new LoginInfo();
+    	loginInfo.setLoginType(LoginType.PhoneLogin.getNumberCode());
+        loginInfo.setCode(code);
+        this.loginInfoMapper.insert(loginInfo);
+    }
     return code;
   }
 
@@ -58,20 +71,28 @@ public class LoginInfoServiceImpl extends BaseServiceImpl
 	      userId = this.userMapper.insert(user);
     }
     
-
+   String token = Base64Util.encode(userId + ":" + new Date());
     loginInfo.setUserId(Integer.valueOf(userId));
     loginInfo.setLastLoginTime(new Date());
+    loginInfo.setToken(token);
     this.loginInfoMapper.updateByPrimaryKey(loginInfo);
 
-    String token = Base64Util.encode(userId + ":" + new Date());
+    
     return token;
   }
 
-  public boolean checkToken(String token) {
+  public User checkToken(String token) {
     logger.debug("检查验证码");
+    Example example=new Example(LoginInfo.class);
+    
     String t = Base64Util.decode(token);
     String id = t.split(":")[0];
-    return this.userMapper.existsWithPrimaryKey(Integer.valueOf(id));
+    example.createCriteria().andEqualTo("userId", id)
+    .andEqualTo("token",token);
+    List<LoginInfo> list = loginInfoMapper.selectByExample(example);
+    Integer userId = list.get(0).getId();
+    User user = userMapper.selectByPrimaryKey(userId);
+    return user;
   }
 
 public List<LoginInfo> findAll() {

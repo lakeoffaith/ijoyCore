@@ -1,6 +1,7 @@
 package core;
 
 import com.ijoy.model.LoginInfo;
+import com.ijoy.model.User;
 import com.ijoy.service.ILoginInfoService;
 import java.io.PrintStream;
 import java.util.List;
@@ -21,30 +22,30 @@ public class LoginInfoServiceTest
 
   @Autowired
   private Mapper<LoginInfo> mapper;
-
-  @Test
+ // @Test
+  public void getCodeByCellPhoneTest(){
+	  String code = loginInfoServiceImpl.getCodeByCellPhone("123");
+	  System.out.println(code);
+  }
   public void findAllTest()
   {
     List select = this.mapper.select(null);
     System.out.println(select);
   }
-  @Test
   public void demoTest() {
     String code = this.loginInfoServiceImpl.getCodeByCellPhone("123");
     System.out.println(code);
   }
-
-  @Test
   public void loginByPhoneAndCodeTest()
   {
-    String code = this.loginInfoServiceImpl.loginByPhoneAndCode("123", "2015");
+    String code = this.loginInfoServiceImpl.loginByPhoneAndCode("123", "4823");
     System.out.println(code);
   }
   @Test
   public void checkTokenTest() {
-    String token = "MTpGcmkgQXByIDA3IDE0OjIzOjE3IENTVCAyMDE3";
+    String token = "MTpTdW4gQXByIDIzIDIyOjAzOjU5IENTVCAyMDE3";
 
-    boolean flag = this.loginInfoServiceImpl.checkToken(token);
-    System.out.println(flag);
+    User user = this.loginInfoServiceImpl.checkToken(token);
+    System.out.println(user);
   }
 }
