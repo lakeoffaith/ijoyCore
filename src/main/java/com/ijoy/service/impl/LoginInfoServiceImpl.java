@@ -3,6 +3,7 @@ package com.ijoy.service.impl;
 import com.ijoy.core.util.Base64Util;
 import com.ijoy.core.util.coreEnum.LoginType;
 import com.ijoy.model.LoginInfo;
+import com.ijoy.model.Resource;
 import com.ijoy.model.User;
 import com.ijoy.service.ILoginInfoService;
 import java.util.Date;
@@ -24,6 +25,9 @@ public class LoginInfoServiceImpl extends BaseServiceImpl
 
   @Autowired
   private Mapper<User> userMapper;
+  
+  @Autowired
+  private Mapper<Resource> resourceMapper;
 
   public String getCodeByCellPhone(String Phone)
   {
@@ -35,9 +39,10 @@ public class LoginInfoServiceImpl extends BaseServiceImpl
     LoginInfo loginInfo =null;
     Example example=new Example(LoginInfo.class);
     example.createCriteria().andEqualTo("loginName", Phone);
-    loginInfo=loginInfoMapper.selectByExample(example).get(0);
+    List<LoginInfo> selectByExample = loginInfoMapper.selectByExample(example);
     
-    if(loginInfo!=null){
+    if(selectByExample!=null && selectByExample.size()>0){
+    	loginInfo=selectByExample.get(0);
     	 //如果此号码存在，则更新 code,
     	loginInfo.setLoginType(LoginType.PhoneLogin.getNumberCode());
         loginInfo.setCode(code);
@@ -48,6 +53,7 @@ public class LoginInfoServiceImpl extends BaseServiceImpl
     	loginInfo= new LoginInfo();
     	loginInfo.setLoginType(LoginType.PhoneLogin.getNumberCode());
         loginInfo.setCode(code);
+        loginInfo.setLoginName(Phone);
         this.loginInfoMapper.insert(loginInfo);
     }
     return code;
@@ -68,10 +74,11 @@ public class LoginInfoServiceImpl extends BaseServiceImpl
     {
 	   User user = new User();
 	      user.setUserName(Phone);
-	      userId = this.userMapper.insert(user);
+	       this.userMapper.insert(user);
+	       userId =user.getId();
     }
     
-   String token = Base64Util.encode(userId + ":" + new Date());
+   String token = Base64Util.encode(userId + ":" + new Date().getTime());
     loginInfo.setUserId(Integer.valueOf(userId));
     loginInfo.setLastLoginTime(new Date());
     loginInfo.setToken(token);
@@ -90,7 +97,7 @@ public class LoginInfoServiceImpl extends BaseServiceImpl
     example.createCriteria().andEqualTo("userId", id)
     .andEqualTo("token",token);
     List<LoginInfo> list = loginInfoMapper.selectByExample(example);
-    Integer userId = list.get(0).getId();
+    Integer userId = list.get(0).getUserId();
     User user = userMapper.selectByPrimaryKey(userId);
     return user;
   }
@@ -102,5 +109,13 @@ public List<LoginInfo> findAll() {
 public List<User> findUserAll() {
 	// TODO Auto-generated method stub
 	return userMapper.select(null);
+}
+
+public Boolean initUrlResource(List<Resource> resources) {
+	for (Resource resource : resources) {
+		 int i=resourceMapper.insert(resource);
+		 if(i==0)return false;
+	}
+	return true;
 }
 }
