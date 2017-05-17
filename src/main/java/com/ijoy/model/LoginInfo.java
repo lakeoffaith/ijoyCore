@@ -22,7 +22,10 @@ public class LoginInfo implements Serializable
 
   @Column(name="login_name")
   private String loginName;
-
+  
+  @Column(name="password")
+  private String password;
+  
   @Column(name="last_login_time")
   private Date lastLoginTime;
 
@@ -99,8 +102,16 @@ public Integer getId()
   {
     this.loginType = loginType;
   }
+  
+  public String getPassword() {
+	return password;
+}
 
-  public String toString()
+public void setPassword(String password) {
+	this.password = password;
+}
+
+public String toString()
   {
     return "LoginInfo [id=" + this.id + ", userId=" + this.userId + ", code=" + this.code + ", loginName=" + this.loginName + ", lastLoginTime=" + this.lastLoginTime + ", loginType=" + this.loginType + "]";
   }

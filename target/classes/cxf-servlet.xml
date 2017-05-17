@@ -9,18 +9,11 @@
      <bean id="loginInterceptor" class="com.ijoy.interceptor.LoginInterceptor">
 		    
 		</bean>
-    <jaxws:server id="LoginInfo" serviceClass="com.ijoy.service.ILoginInfoService" address="/LoginInfo">
+    <jaxws:server id="IjoyCoreService" serviceClass="com.ijoy.service.IjoyCoreService" address="/IjoyCoreService">
     	<jaxws:serviceBean>
         <!-- 要暴露的 bean 的引用 -->
-        <bean class="com.ijoy.service.impl.LoginInfoServiceImpl"></bean>
-    </jaxws:serviceBean>
-    </jaxws:server> 
-    <jaxws:server id="User" serviceClass="com.ijoy.service.IUserService" address="/User">
-    	<jaxws:serviceBean>
-        <!-- 要暴露的 bean 的引用 -->
-        <bean class="com.ijoy.service.impl.UserServiceImpl"></bean>
+        <bean class="com.ijoy.service.impl.IjoyCoreServiceImpl"></bean>
     	</jaxws:serviceBean>
-    	
     	<jaxws:inInterceptors>
     		<ref bean="loginInterceptor"/>
     	</jaxws:inInterceptors>

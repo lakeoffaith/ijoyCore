@@ -18,7 +18,7 @@
             <property name="suppressAllComments" value="true"/>    
         </commentGenerator>
     <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                    connectionURL="jdbc:mysql://localhost:3306/demo"
+                    connectionURL="jdbc:mysql://192.168.0.111:3306/core"
                     userId="root"
                     password="black">
     </jdbcConnection>
@@ -29,10 +29,7 @@
 
     <javaClientGenerator targetPackage="com.ijoy.mapper" targetProject="E:\help\work\SysCore\src\main\java" type="XMLMAPPER" />
 
-    <table tableName="role">
-      <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-    </table>
-    <table tableName="resource">
+    <table tableName="user_role">
       <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
     </table>
   </context>

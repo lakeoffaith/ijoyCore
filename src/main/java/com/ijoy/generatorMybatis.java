@@ -1,8 +1,8 @@
 package com.ijoy;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;

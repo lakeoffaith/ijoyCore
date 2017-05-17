@@ -1,67 +1,78 @@
 package core;
 
-import com.ijoy.model.LoginInfo;
-import com.ijoy.model.Resource;
-import com.ijoy.model.User;
-import com.ijoy.service.ILoginInfoService;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import tk.mybatis.mapper.common.Mapper;
+
+import com.ijoy.model.Resource;
+import com.ijoy.model.Role;
+import com.ijoy.model.User;
+import com.ijoy.service.IjoyCoreService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:spring-context.xml"})
-public class LoginInfoServiceTest
-{
+@ContextConfiguration(locations = { "classpath:spring-context.xml" })
+public class LoginInfoServiceTest{
 
-  @Autowired
-  private ILoginInfoService loginInfoServiceImpl;
+	@Autowired
+	private IjoyCoreService service;
+	@Test
+	public void getCodeByCellPhoneTest() {
+		String phone="1234566666";
+		String code = service.getCodeByCellPhone(phone);
+		Assert.assertTrue(code.length()==4);;
+		String token = service.loginByPhoneAndCode(phone, code);
+		Assert.assertTrue(token.length()>5);
+		User user = service.checkToken(token);
+		Assert.assertTrue(user.getUserName().equals(phone));
+	}
 
-  @Autowired
-  private Mapper<LoginInfo> mapper;
- // @Test
-  
-  public void getCodeByCellPhoneTest(){
-	  String code = loginInfoServiceImpl.getCodeByCellPhone("12345");
-	  System.out.println(code);
-  }
-  public void findAllTest()
-  {
-    List select = this.mapper.select(null);
-    System.out.println(select);
-  }
-  public void demoTest() {
-    String code = this.loginInfoServiceImpl.getCodeByCellPhone("123");
-    System.out.println(code);
-  }
-  
-  public void loginByPhoneAndCodeTest()
-  {
-    String code = this.loginInfoServiceImpl.loginByPhoneAndCode("12345", "6320");
-    System.out.println(code);
-  }
-  @Test
-  public void checkTokenTest() {
-    String token = "MTg6MTQ5MzcwNDY2NjQwNQ==";
+	@Test
+	public void registerByUserNameAndPassword() {
+		String userName="userName"+Math.random()*1000;
+		Boolean flag = service.registerByUserNameAndPassword(userName, "123");
+		Assert.assertTrue(flag);
+		String token = service.loginByUserNameAndPassword(userName, "123");
+		Assert.assertTrue(token.length()>5);
+		User user = service.checkToken(token);
+		Assert.assertTrue(user.getUserName().equals(userName));
+		List<Integer> resourceIds=initUrlResource();
+		Role role=new Role();
+		role.setName("测试角色");
+		role= service.insertRole(role);
+		Assert.assertTrue(role.getId()>0);
+		Assert.assertTrue(service.linkRole(user.getId(), role.getId()));
+		for(Integer i:resourceIds){
+			Assert.assertTrue(service.linkResource(role.getId(), i));
+		}
+		List<Resource> menusByUserId = service.getMenusByUserId(user.getId());
+		Assert.assertTrue(menusByUserId.get(0).getUrl().equals("/test/"));
+		List<Resource> buttonsByUserId = service.getButtonsByUserId(user.getId());
+		Assert.assertTrue(buttonsByUserId.get(0).getAction().equals("editBtn"));
+	}
 
-    User user = this.loginInfoServiceImpl.checkToken(token);
-    System.out.println(user);
-  }
-  
-  
-  public void initUrlResourceTest(){
-	  List<Resource> lists=new ArrayList<Resource>();
-	  Resource r=new Resource();
-	  r.setUrl("/nihao/");
-	  lists.add(r);
-	  loginInfoServiceImpl.initUrlResource(lists);
-	  
-	  
-	  
-  }
+	
+	public List<Integer> initUrlResource() {
+		List<Resource> resources=new ArrayList();
+		Resource r=new Resource();
+		r.setUrl("/test/");
+		r.setType(0);
+		resources.add(r);
+		Resource b=new Resource();
+		b.setAction("editBtn");
+		b.setType(1);
+		resources.add(b);
+		List<Integer> ids= service.initUrlResource("", resources);
+		System.out.println(ids);
+		
+		Assert.assertTrue(ids.size()>0);
+		return ids;
+	}
+
+
 }

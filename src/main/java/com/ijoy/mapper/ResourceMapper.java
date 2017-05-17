@@ -5,4 +5,6 @@ import tk.mybatis.mapper.common.Mapper;
 
 public abstract interface ResourceMapper extends Mapper<Resource>
 {
+
+	public void linkResource(int roleId, int resourceId);
 }

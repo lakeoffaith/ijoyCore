@@ -10,7 +10,9 @@
     <result column="action" jdbcType="VARCHAR" property="action" />
     <result column="type" jdbcType="INTEGER" property="type" />
   </resultMap>
-  
+  <insert id="linkResource" >
+      insert into role_resource(role_id,resource_id) values(#{0},#{1})
+  </insert>
  
   	
   	
